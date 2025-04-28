@@ -21,7 +21,7 @@ def generate_bash_script(tfvars_data, output_path):
         bash_lines.append(f"######## Imports for Permission Set: {name} ########")
 
         # 1. Import Permission Set itself
-        bash_lines.append(f"terraform import 'aws_ssoadmin_permission_set.this[\"{name}\"]' '{INSTANCE_ARN}/arn:aws:sso:::permissionSet/{INSTANCE_ID}/{ps_id}'")
+        bash_lines.append(f"terraform import 'aws_ssoadmin_permission_set.this[\"{name}\"]' '{PERMISSION_SET_ARN_PREFIX}/{ps_id},{INSTANCE_ARN}'")
 
         # 2. Import Inline Policy (if present)
         if 'inline_policy_file' in ps and ps['inline_policy_file']:
