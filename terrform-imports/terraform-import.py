@@ -17,20 +17,21 @@ def generate_bash_script(tfvars_data, output_path):
 
     for ps in permission_sets:
         name = ps['name']
-        bash_lines.append(f"######## {name} permission sets #########")
+        ps_id = ps.get("permission_set_id", name)
+        bash_lines.append(f"######## Imports for Permission Set: {name} ########")
 
         # 1. Import Permission Set itself
-        bash_lines.append(f"terraform import 'aws_ssoadmin_permission_set.this[\"{name}\"]' '{INSTANCE_ARN}/arn:aws:sso:::permissionSet/{INSTANCE_ID}/{name}'")
+        bash_lines.append(f"terraform import 'aws_ssoadmin_permission_set.this[\"{name}\"]' '{INSTANCE_ARN}/arn:aws:sso:::permissionSet/{INSTANCE_ID}/{ps_id}'")
 
         # 2. Import Inline Policy (if present)
         if 'inline_policy_file' in ps and ps['inline_policy_file']:
-            bash_lines.append(f"terraform import 'aws_ssoadmin_permission_set_inline_policy.this[\"{name}\"]' '{PERMISSION_SET_ARN_PREFIX}/{name},{INSTANCE_ARN}'")
+            bash_lines.append(f"terraform import 'aws_ssoadmin_permission_set_inline_policy.this[\"{name}\"]' '{PERMISSION_SET_ARN_PREFIX}/{ps_id},{INSTANCE_ARN}'")
 
         # 3. Import Managed Policy Attachments
         for policy_arn in ps.get('managed_policies', []):
             policy_name = os.path.basename(policy_arn)
             key = f"{name}-{policy_name}"
-            bash_lines.append(f"terraform import 'aws_ssoadmin_managed_policy_attachment.this[\"{key}\"]' '{policy_arn},{PERMISSION_SET_ARN_PREFIX}/{name},{INSTANCE_ARN}'")
+            bash_lines.append(f"terraform import 'aws_ssoadmin_managed_policy_attachment.this[\"{key}\"]' '{policy_arn},{PERMISSION_SET_ARN_PREFIX}/{ps_id},{INSTANCE_ARN}'")
 
         # 4. Import Assignments
         for assign in ps.get('assignments', []):
@@ -38,7 +39,7 @@ def generate_bash_script(tfvars_data, output_path):
             principal_type = assign['principal_type']
             account_id = assign['account_id']
             assignment_key = f"{name}-{account_id}-{principal_id}"
-            bash_lines.append(f"terraform import 'aws_ssoadmin_account_assignment.this[\"{assignment_key}\"]' '{principal_id},{principal_type},{account_id},AWS_ACCOUNT,{PERMISSION_SET_ARN_PREFIX}/{name},{INSTANCE_ARN}'")
+            bash_lines.append(f"terraform import 'aws_ssoadmin_account_assignment.this[\"{assignment_key}\"]' '{principal_id},{principal_type},{account_id},AWS_ACCOUNT,{PERMISSION_SET_ARN_PREFIX}/{ps_id},{INSTANCE_ARN}'")
         
         bash_lines.append("")
 
