@@ -1,5 +1,6 @@
 import hcl2
 import os
+import boto3
 
 INSTANCE_ID = "ssoins-7223e28d1218cf56"
 INSTANCE_ARN = f"arn:aws:sso:::instance/{INSTANCE_ID}"
@@ -10,6 +11,25 @@ def load_tfvars(filepath):
     with open(filepath, 'r') as f:
         return hcl2.load(f)
 
+
+def get_permission_set_id_by_name(name):
+    ssoadmin = boto3.client("sso-admin")
+    instance_arn = INSTANCE_ARN
+
+    paginator = ssoadmin.get_paginator("list_permission_sets")
+    for page in paginator.paginate(InstanceArn=instance_arn):
+        for permission_set_arn in page["PermissionSets"]:
+            ps = ssoadmin.describe_permission_set(
+                InstanceArn=instance_arn,
+                PermissionSetArn=permission_set_arn
+            )
+            if ps["PermissionSet"]["Name"] == name:
+                # ARN ends with /ps-xxxxxxxxxxxxxxxx
+                return permission_set_arn.split("/")[-1]
+
+    raise ValueError(f"Permission Set with name '{name}' not found in AWS SSO.")
+
+
 # Generate the bash script
 def generate_bash_script(tfvars_data, output_path):
     permission_sets = tfvars_data['permission_sets']
@@ -17,7 +37,9 @@ def generate_bash_script(tfvars_data, output_path):
 
     for ps in permission_sets:
         name = ps['name']
-        ps_id = ps.get("permission_set_id", name)
+        # ps_id = ps.get("permission_set_id", name)
+        ps_id = get_permission_set_id_by_name(name)
+
         bash_lines.append(f"######## Imports for Permission Set: {name} ########")
 
         # 1. Import Permission Set itself
