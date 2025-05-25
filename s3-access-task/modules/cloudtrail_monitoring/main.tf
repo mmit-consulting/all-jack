@@ -91,10 +91,6 @@ resource "aws_cloudtrail" "s3_trail" {
   }
 }
 
-# { ($.eventName = "PutBucketPublicAccessBlock") && ($.requestParameters.bucketName = "mahdi-test-jack-bucket") }
-
-
-
 # Filtering events
 
 ########## Filter only PutBucketAcl events on specified buckets
