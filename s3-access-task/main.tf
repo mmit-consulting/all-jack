@@ -7,7 +7,8 @@ module "s3_security" {
 module "cloudtrail_monitoring" {
   source = "./modules/cloudtrail_monitoring"
 
-  cloudtrail_logs_bucket = "jack-infra-bucket"
-  cloudwatch_log_group   = "/aws/cloudtrail/s3-security-monitoring"
-  sns_email_list         = ["mahdiibouaziz@gmail.com"]
+  cloudtrail_logs_bucket  = "jack-infra-bucket"
+  cloudwatch_log_group    = "/aws/cloudtrail/s3-security-monitoring"
+  sns_email_list          = ["mahdiibouaziz@gmail.com"]
+  bucket_names_to_monitor = var.bucket_names
 }

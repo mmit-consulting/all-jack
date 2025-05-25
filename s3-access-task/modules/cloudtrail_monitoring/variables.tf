@@ -11,3 +11,7 @@ variable "cloudtrail_logs_bucket" {
   description = "bucket to write logs of cloudtrail"
   type        = string
 }
+
+variable "bucket_names_to_monitor" {
+  type = list(string)
+}

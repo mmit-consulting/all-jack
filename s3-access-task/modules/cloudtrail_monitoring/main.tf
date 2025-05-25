@@ -86,30 +86,45 @@ resource "aws_cloudtrail" "s3_trail" {
   is_organization_trail         = false
 
   event_selector {
-    read_write_type           = "All"
+    read_write_type           = "WriteOnly"
     include_management_events = true
-
-    data_resource {
-      type   = "AWS::S3::Object"
-      values = ["arn:aws:s3"]
-    }
   }
 }
 
+# { ($.eventName = "PutBucketPublicAccessBlock") && ($.requestParameters.bucketName = "mahdi-test-jack-bucket") }
+
+
 
 # Filtering events
-resource "aws_cloudwatch_log_metric_filter" "s3_config_changes" {
-  name           = "S3SecurityEvents"
-  log_group_name = aws_cloudwatch_log_group.trail_logs.name
 
-  pattern = "{ ($.eventName = PutBucketPublicAccessBlock || $.eventName = PutBucketAcl) }"
+########## Filter only PutBucketAcl events on specified buckets
+resource "aws_cloudwatch_log_metric_filter" "acl_change" {
+  for_each       = toset(var.bucket_names_to_monitor)
+  name           = "S3AclChange-${each.key}"
+  log_group_name = aws_cloudwatch_log_group.trail_logs.name
+  pattern        = "{ ($.eventName = \"PutBucketAcl\") && ($.requestParameters.bucketName = \"${each.key}\") }"
 
   metric_transformation {
-    name      = "S3SecurityChange"
+    name      = "S3AclChange-${each.key}"
     namespace = "S3Security"
     value     = "1"
   }
 }
+
+########## Filter only PutBucketPublicAccessBlock events on specified buckets
+resource "aws_cloudwatch_log_metric_filter" "block_public_change" {
+  for_each       = toset(var.bucket_names_to_monitor)
+  name           = "S3BlockPublicAccessChange-${each.key}"
+  log_group_name = aws_cloudwatch_log_group.trail_logs.name
+  pattern        = "{ ($.eventName = \"PutBucketPublicAccessBlock\") && ($.requestParameters.bucketName = \"${each.key}\") }"
+
+  metric_transformation {
+    name      = "S3BlockPublicAccessChange-${each.key}"
+    namespace = "S3Security"
+    value     = "1"
+  }
+}
+
 
 # Setup email based notification
 resource "aws_sns_topic" "s3_alerts" {
@@ -124,15 +139,32 @@ resource "aws_sns_topic_subscription" "email_alerts" {
   endpoint  = each.value
 }
 
-resource "aws_cloudwatch_metric_alarm" "s3_change_alert" {
-  alarm_name          = "S3SecurityChangeAlert"
+# Alamr for ACL changes 
+resource "aws_cloudwatch_metric_alarm" "acl_alarm" {
+  for_each            = toset(var.bucket_names_to_monitor)
+  alarm_name          = "S3AclChangeAlarm-${each.key}"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
-  metric_name         = "S3SecurityChange"
+  metric_name         = "S3AclChange-${each.key}"
   namespace           = "S3Security"
   period              = 300
   statistic           = "Sum"
   threshold           = 1
   alarm_actions       = [aws_sns_topic.s3_alerts.arn]
-  alarm_description   = "Triggered when block public access or ACL settings are changed on S3 buckets."
+  alarm_description   = "ACL was modified on bucket: ${each.key}"
+}
+
+# Alarm for Block Public Access changes
+resource "aws_cloudwatch_metric_alarm" "block_public_alarm" {
+  for_each            = toset(var.bucket_names_to_monitor)
+  alarm_name          = "S3BlockPublicAccessChangeAlarm-${each.key}"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "S3BlockPublicAccessChange-${each.key}"
+  namespace           = "S3Security"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  alarm_actions       = [aws_sns_topic.s3_alerts.arn]
+  alarm_description   = "Block Public Access setting was modified on bucket: ${each.key}"
 }
