@@ -81,7 +81,7 @@
 resource "aws_config_config_rule" "s3_block_public" {
   for_each = toset(var.bucket_names)
 
-  name = "s3-bucket-public-read-prohibited-${each.key}"
+  name = "s3-bucket-public-read-prohibited-${replace(each.key, ".", "-")}"
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
@@ -97,7 +97,7 @@ resource "aws_config_config_rule" "s3_block_public" {
 resource "aws_config_config_rule" "s3_acl_prohibited" {
   for_each = toset(var.bucket_names)
 
-  name = "s3-bucket-acl-prohibited-${each.key}"
+  name = "s3-bucket-acl-prohibited-${replace(each.key, ".", "-")}"
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_ACL_PROHIBITED"
