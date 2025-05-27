@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Page with ACID Popup</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+    }
+
+    .page-content {
+      padding: 50px;
+      text-align: center;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .popup {
+      background: white;
+      padding: 40px 60px;
+      border-radius: 10px;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .popup h1 {
+      margin-top: 0;
+      font-size: 28px;
+      color: #c0392b;
+    }
+
+    .popup p {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .close-btn:hover {
+      color: #000;
+    }
+
+    .big-close-btn {
+      background-color: #c0392b;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .big-close-btn:hover {
+      background-color: #a93226;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-content">
+    <h2>Welcome to Our Documentation Portal</h2>
+    <p>This is a sample content area for the actual page content.</p>
+  </div>
+
+  <div class="overlay" id="acid-popup">
+    <div class="popup">
+      <button class="close-btn" onclick="closePopup()">&times;</button>
+      <h1>ACID Team is Closed</h1>
+      <p>Documentation is still available but not maintained.</p>
+      <p>We will continue to maintain the images : Stay Tuned</p>
+      <button class="big-close-btn" onclick="closePopup()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function closePopup() {
+      document.getElementById('acid-popup').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
