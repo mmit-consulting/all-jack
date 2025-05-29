@@ -1,0 +1,39 @@
+- name: Gather OS family
+  ansible.builtin.setup:
+    filter: ansible_os_family
+
+- name: Check if amazon-ssm-agent is installed (YUM)
+  command: rpm -q amazon-ssm-agent
+  register: ssm_check_yum
+  when: ansible_os_family == "RedHat"
+  ignore_errors: true
+
+- name: Check if amazon-ssm-agent is installed (DEB)
+  command: dpkg -l amazon-ssm-agent
+  register: ssm_check_deb
+  when: ansible_os_family == "Debian"
+  ignore_errors: true
+
+- name: Install amazon-ssm-agent on YUM-based systems
+  yum:
+    name: amazon-ssm-agent
+    state: present
+  when:
+    - ansible_os_family == "RedHat"
+    - ssm_check_yum.rc != 0
+
+- name: Install amazon-ssm-agent on DEB-based systems
+  apt:
+    name: amazon-ssm-agent
+    state: present
+    update_cache: yes
+  when:
+    - ansible_os_family == "Debian"
+    - ssm_check_deb.rc != 0
+
+- name: Enable and start the SSM agent (systemd)
+  systemd:
+    name: amazon-ssm-agent
+    state: restarted
+    enabled: true
+  when: ssm_check_yum.rc == 0 or ssm_check_deb.rc == 0

@@ -1,0 +1,5 @@
+- name: Restart or install SSM agent on Linux EC2s
+  hosts: ssm_linux
+  become: true
+  roles:
+    - ssm_agent
