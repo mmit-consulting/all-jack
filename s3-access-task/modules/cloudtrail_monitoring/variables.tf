@@ -12,6 +12,7 @@ variable "cloudtrail_logs_bucket" {
   type        = string
 }
 
-variable "bucket_names_to_monitor" {
-  type = list(string)
+variable "bucket_region_map" {
+  type        = map(string)
+  description = "Map of bucket names to their regions"
 }

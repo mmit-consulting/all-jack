@@ -1,6 +1,10 @@
 # Prepare the required policies for s3 bucket used by cloudtrail and config
 data "aws_caller_identity" "current" {}
 
+locals {
+  bucket_names = keys(var.bucket_region_map)
+}
+
 resource "aws_s3_bucket_policy" "config_policy" {
   bucket = var.cloudtrail_logs_bucket
 
@@ -95,7 +99,7 @@ resource "aws_cloudtrail" "s3_trail" {
 
 ########## Filter only PutBucketAcl events on specified buckets
 resource "aws_cloudwatch_log_metric_filter" "acl_change" {
-  for_each       = toset(var.bucket_names_to_monitor)
+  for_each       = toset(local.bucket_names)
   name           = "S3AclChange-${each.key}"
   log_group_name = aws_cloudwatch_log_group.trail_logs.name
   pattern        = "{ ($.eventName = \"PutBucketAcl\") && ($.requestParameters.bucketName = \"${each.key}\") }"
@@ -109,7 +113,7 @@ resource "aws_cloudwatch_log_metric_filter" "acl_change" {
 
 ########## Filter only PutBucketPublicAccessBlock events on specified buckets
 resource "aws_cloudwatch_log_metric_filter" "block_public_change" {
-  for_each       = toset(var.bucket_names_to_monitor)
+  for_each       = toset(local.bucket_names)
   name           = "S3BlockPublicAccessChange-${each.key}"
   log_group_name = aws_cloudwatch_log_group.trail_logs.name
   pattern        = "{ ($.eventName = \"PutBucketPublicAccessBlock\") && ($.requestParameters.bucketName = \"${each.key}\") }"
@@ -137,7 +141,7 @@ resource "aws_sns_topic_subscription" "email_alerts" {
 
 # Alamr for ACL changes 
 resource "aws_cloudwatch_metric_alarm" "acl_alarm" {
-  for_each            = toset(var.bucket_names_to_monitor)
+  for_each            = toset(local.bucket_names)
   alarm_name          = "S3AclChangeAlarm-${each.key}"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
@@ -152,7 +156,7 @@ resource "aws_cloudwatch_metric_alarm" "acl_alarm" {
 
 # Alarm for Block Public Access changes
 resource "aws_cloudwatch_metric_alarm" "block_public_alarm" {
-  for_each            = toset(var.bucket_names_to_monitor)
+  for_each            = toset(local.bucket_names)
   alarm_name          = "S3BlockPublicAccessChangeAlarm-${each.key}"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1

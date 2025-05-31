@@ -10,15 +10,15 @@ module "s3_security" {
   }
 }
 
-# # Real-time alerting (when event happens that change the filter, the email is sent within the next 5mn)
-# module "cloudtrail_monitoring" {
-#   source = "./modules/cloudtrail_monitoring"
+# Real-time alerting (when event happens that change the filter, the email is sent within the next 5mn)
+module "cloudtrail_monitoring" {
+  source = "./modules/cloudtrail_monitoring"
 
-#   cloudtrail_logs_bucket  = var.cloudtrail_logs_bucket
-#   cloudwatch_log_group    = var.cloudwatch_log_group
-#   sns_email_list          = var.emails
-#   bucket_names_to_monitor = var.bucket_names
-# }
+  cloudtrail_logs_bucket = var.cloudtrail_logs_bucket
+  cloudwatch_log_group   = var.cloudwatch_log_group
+  sns_email_list         = var.emails
+  bucket_region_map      = var.bucket_region_map
+}
 
 # # Continuous compliance & auditing
 # module "aws_config" {
