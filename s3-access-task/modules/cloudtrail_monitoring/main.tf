@@ -147,7 +147,7 @@ resource "aws_cloudwatch_metric_alarm" "acl_alarm" {
   evaluation_periods  = 1
   metric_name         = "S3AclChange-${each.key}"
   namespace           = "S3Security"
-  period              = 300
+  period              = 180
   statistic           = "Sum"
   threshold           = 1
   alarm_actions       = [aws_sns_topic.s3_alerts.arn]
@@ -162,7 +162,7 @@ resource "aws_cloudwatch_metric_alarm" "block_public_alarm" {
   evaluation_periods  = 1
   metric_name         = "S3BlockPublicAccessChange-${each.key}"
   namespace           = "S3Security"
-  period              = 300
+  period              = 180
   statistic           = "Sum"
   threshold           = 1
   alarm_actions       = [aws_sns_topic.s3_alerts.arn]
