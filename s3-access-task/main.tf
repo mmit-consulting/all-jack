@@ -20,9 +20,15 @@ module "cloudtrail_monitoring" {
   bucket_region_map      = var.bucket_region_map
 }
 
-# # Continuous compliance & auditing
-# module "aws_config" {
-#   source             = "./modules/aws_config"
-#   config_logs_bucket = var.cloudtrail_logs_bucket
-#   bucket_names       = var.bucket_names
-# }
+# Continuous compliance & auditing
+module "aws_config" {
+  source             = "./modules/aws_config"
+  config_logs_bucket = var.cloudtrail_logs_bucket
+
+  bucket_region_map = var.bucket_region_map
+
+  providers = {
+    aws.us-east-1 = aws.us-east-1
+    aws.us-east-2 = aws.us-east-2
+  }
+}
