@@ -1,9 +1,71 @@
-# Prepare the required policies for s3 bucket used by cloudtrail and config
-data "aws_caller_identity" "current" {}
-
 locals {
   bucket_names = keys(var.bucket_region_map)
+
+  buckets_us_east_1 = {
+    for name, region in var.bucket_region_map : name => region
+    if region == "us-east-1"
+  }
+
+  buckets_us_west_2 = {
+    for name, region in var.bucket_region_map : name => region
+    if region == "us-west-2"
+  }
+
 }
+
+############### Enforce S3 Security ###############
+# Block public access
+# 1 block per region -> if you have other regions, we should add other blocks
+resource "aws_s3_bucket_public_access_block" "secure_us_east_1" {
+  for_each = local.buckets_us_east_1
+
+  provider = aws.us-east-1
+
+  bucket = each.key
+
+  block_public_acls       = true
+  ignore_public_acls      = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_public_access_block" "secure_us_west_2" {
+  for_each = local.buckets_us_west_2
+
+  provider = aws.us-west-2
+
+  bucket                  = each.key
+  block_public_acls       = true
+  ignore_public_acls      = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+}
+
+# Disable ACLs - TODO to uncomment after 3 to 7 days
+# resource "aws_s3_bucket_ownership_controls" "disable_acls_us_east_1" {
+#   for_each = local.buckets_us_east_1
+#   bucket   = each.key
+
+#   rule {
+#     object_ownership = "BucketOwnerEnforced" # use "BucketOwnerPreferred" if you want to enable ACL back
+#   }
+# }
+
+# resource "aws_s3_bucket_ownership_controls" "disable_acls_us_west_2" {
+#   for_each = local.buckets_us_west_2
+#   bucket   = each.key
+
+#   rule {
+#     object_ownership = "BucketOwnerEnforced" # use "BucketOwnerPreferred" if you want to enable ACL back
+#   }
+# }
+
+
+
+############### CloudTrail monitoring ###############
+
+# Prepare the required policies for s3 bucket used by cloudtrail and config
+data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_policy" "config_policy" {
   bucket = var.cloudtrail_logs_bucket
@@ -96,8 +158,7 @@ resource "aws_cloudtrail" "s3_trail" {
 }
 
 # Filtering events
-
-########## Filter only PutBucketAcl events on specified buckets
+# Filter only PutBucketAcl events on specified buckets
 resource "aws_cloudwatch_log_metric_filter" "acl_change" {
   for_each       = toset(local.bucket_names)
   name           = "S3AclChange-${each.key}"
@@ -111,7 +172,7 @@ resource "aws_cloudwatch_log_metric_filter" "acl_change" {
   }
 }
 
-########## Filter only PutBucketPublicAccessBlock events on specified buckets
+# Filter only PutBucketPublicAccessBlock events on specified buckets
 resource "aws_cloudwatch_log_metric_filter" "block_public_change" {
   for_each       = toset(local.bucket_names)
   name           = "S3BlockPublicAccessChange-${each.key}"
@@ -167,4 +228,79 @@ resource "aws_cloudwatch_metric_alarm" "block_public_alarm" {
   threshold           = 1
   alarm_actions       = [aws_sns_topic.s3_alerts.arn]
   alarm_description   = "Block Public Access setting was modified on bucket: ${each.key}"
+}
+
+
+
+
+
+############### AWS Config ###############
+
+# Define the compliance policies to enforce.
+resource "aws_config_config_rule" "s3_block_public_useast1" {
+  for_each = local.buckets_us_east_1
+
+  provider = aws.us-east-1
+
+  name = "s3-bucket-public-read-prohibited-${replace(each.key, ".", "-")}"
+  source {
+    owner             = "AWS"
+    source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+  }
+
+  scope {
+    compliance_resource_types = ["AWS::S3::Bucket"]
+    compliance_resource_id    = each.key
+  }
+}
+
+resource "aws_config_config_rule" "s3_block_public_useast2" {
+  for_each = local.buckets_us_west_2
+
+  provider = aws.us-west-2
+
+  name = "s3-bucket-public-read-prohibited-${replace(each.key, ".", "-")}"
+  source {
+    owner             = "AWS"
+    source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+  }
+
+  scope {
+    compliance_resource_types = ["AWS::S3::Bucket"]
+    compliance_resource_id    = each.key
+  }
+}
+
+resource "aws_config_config_rule" "s3_acl_prohibited_useast1" {
+  for_each = local.buckets_us_east_1
+
+  provider = aws.us-east-1
+
+  name = "s3-bucket-acl-prohibited-${replace(each.key, ".", "-")}"
+  source {
+    owner             = "AWS"
+    source_identifier = "S3_BUCKET_ACL_PROHIBITED"
+  }
+
+  scope {
+    compliance_resource_types = ["AWS::S3::Bucket"]
+    compliance_resource_id    = each.key
+  }
+}
+
+resource "aws_config_config_rule" "s3_acl_prohibited_useast2" {
+  for_each = local.buckets_us_west_2
+
+  provider = aws.us-west-2
+
+  name = "s3-bucket-acl-prohibited-${replace(each.key, ".", "-")}"
+  source {
+    owner             = "AWS"
+    source_identifier = "S3_BUCKET_ACL_PROHIBITED"
+  }
+
+  scope {
+    compliance_resource_types = ["AWS::S3::Bucket"]
+    compliance_resource_id    = each.key
+  }
 }
