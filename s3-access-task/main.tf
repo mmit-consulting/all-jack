@@ -6,7 +6,7 @@ module "s3_security" {
 
   providers = {
     aws.us-east-1 = aws.us-east-1
-    aws.us-east-2 = aws.us-east-2
+    aws.us-west-2 = aws.us-west-2
   }
 }
 
@@ -29,6 +29,6 @@ module "aws_config" {
 
   providers = {
     aws.us-east-1 = aws.us-east-1
-    aws.us-east-2 = aws.us-east-2
+    aws.us-west-2 = aws.us-west-2
   }
 }

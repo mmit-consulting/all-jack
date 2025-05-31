@@ -7,7 +7,7 @@ locals {
 
   buckets_us_east_2 = {
     for name, region in var.bucket_region_map : name => region
-    if region == "us-east-2"
+    if region == "us-west-2"
   }
 }
 
@@ -32,7 +32,7 @@ resource "aws_config_config_rule" "s3_block_public_useast1" {
 resource "aws_config_config_rule" "s3_block_public_useast2" {
   for_each = local.buckets_us_east_2
 
-  provider = aws.us-east-2
+  provider = aws.us-west-2
 
   name = "s3-bucket-public-read-prohibited-${replace(each.key, ".", "-")}"
   source {
@@ -66,7 +66,7 @@ resource "aws_config_config_rule" "s3_acl_prohibited_useast1" {
 resource "aws_config_config_rule" "s3_acl_prohibited_useast2" {
   for_each = local.buckets_us_east_2
 
-  provider = aws.us-east-2
+  provider = aws.us-west-2
 
   name = "s3-bucket-acl-prohibited-${replace(each.key, ".", "-")}"
   source {

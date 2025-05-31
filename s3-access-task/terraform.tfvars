@@ -10,5 +10,5 @@ bucket_names = [
 bucket_region_map = {
   "mahdi-test-jack-bucket"         = "us-east-1"
   "mahdi-test-object-jack2"        = "us-east-1"
-  "mahdi-test-jack-bucket-useast2" = "us-east-2"
+  "mahdi-test-jack-bucket-useast2" = "us-west-2"
 }

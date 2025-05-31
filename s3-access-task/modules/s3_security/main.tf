@@ -19,10 +19,10 @@ resource "aws_s3_bucket_public_access_block" "secure_us_east_1" {
 resource "aws_s3_bucket_public_access_block" "secure_us_east_2" {
   for_each = {
     for name, region in var.bucket_region_map : name => region
-    if region == "us-east-2"
+    if region == "us-west-2"
   }
 
-  provider = aws.us-east-2
+  provider = aws.us-west-2
 
   bucket                  = each.key
   block_public_acls       = true

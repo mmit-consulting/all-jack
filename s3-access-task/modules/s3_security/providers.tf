@@ -5,7 +5,7 @@ terraform {
       version = "6.0.0-beta2"
       configuration_aliases = [
         aws.us-east-1,
-        aws.us-east-2
+        aws.us-west-2
       ]
     }
   }
