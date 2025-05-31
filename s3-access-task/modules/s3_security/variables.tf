@@ -1,3 +1,3 @@
-variable "bucket_names" {
-  type = list(string)
+variable "bucket_region_map" {
+  type = map(string)
 }
