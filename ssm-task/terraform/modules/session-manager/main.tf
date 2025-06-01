@@ -33,6 +33,10 @@ resource "aws_vpc_endpoint" "ssm" {
   subnet_ids          = var.subnet_ids
   security_group_ids  = [aws_security_group.ssm_endpoints.id]
   private_dns_enabled = true
+
+  tags = {
+    Name = "${each.key}"
+  }
 }
 
 
