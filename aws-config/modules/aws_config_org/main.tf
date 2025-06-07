@@ -90,20 +90,20 @@ resource "aws_config_delivery_channel" "this" {
 ##########################
 
 resource "aws_config_organization_managed_rule" "s3_block_public" {
-  name                        = "org-s3-block-public-read-prohibited"
-  rule_identifier             = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
-  maximum_execution_frequency = "Six_Hours"
-  resource_types_scope        = ["AWS::S3::Bucket"]
+  name                 = "org-s3-block-public-read-prohibited"
+  rule_identifier      = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+  resource_types_scope = ["AWS::S3::Bucket"]
+  excluded_accounts    = var.excluded_accounts
   depends_on = [
     aws_config_delivery_channel.this
   ]
 }
 
 resource "aws_config_organization_managed_rule" "s3_acl_prohibited" {
-  name                        = "org-s3-acl-prohibited"
-  rule_identifier             = "S3_BUCKET_ACL_PROHIBITED"
-  maximum_execution_frequency = "Six_Hours"
-  resource_types_scope        = ["AWS::S3::Bucket"]
+  name                 = "org-s3-acl-prohibited"
+  rule_identifier      = "S3_BUCKET_ACL_PROHIBITED"
+  resource_types_scope = ["AWS::S3::Bucket"]
+  excluded_accounts    = var.excluded_accounts
   depends_on = [
     aws_config_delivery_channel.this
   ]
