@@ -80,7 +80,8 @@ resource "aws_config_delivery_channel" "this" {
   s3_bucket_name = var.config_logs_bucket
 
   depends_on = [
-    aws_config_configuration_recorder.this
+    aws_config_configuration_recorder.this,
+    aws_s3_bucket_policy.config_logs_bucket_policy
   ]
 }
 
