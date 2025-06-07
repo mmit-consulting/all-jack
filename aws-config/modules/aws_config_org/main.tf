@@ -86,7 +86,7 @@ resource "aws_sns_topic_subscription" "email_subscriptions" {
 }
 
 ##########################
-# Avent Bridge rules
+# Event Bridge rules
 ##########################
 
 resource "aws_cloudwatch_event_rule" "config_compliance_change" {
