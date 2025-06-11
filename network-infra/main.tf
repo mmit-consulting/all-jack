@@ -38,69 +38,41 @@ module "vpc_endpoints" {
 
 #### Security Groups ####
 
-# Create Security Groups
-resource "aws_security_group" "dynamic_sg" {
+module "security_group" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
   for_each = { for sg in var.security_groups : sg.name => sg }
 
   name        = each.value.name
   description = each.value.description
   vpc_id      = module.vpc.vpc_id
 
+  ingress_with_cidr_blocks = flatten([
+  for rule in each.value.ingress : [
+    for cidr in rule.cidr_blocks : {
+      from_port   = rule.from_port
+      to_port     = rule.to_port
+      protocol    = rule.protocol
+      description = "Managed by Terraform"
+      cidr_blocks = cidr
+    }
+  ]
+])
+
+egress_with_cidr_blocks = flatten([
+  for rule in each.value.egress : [
+    for cidr in rule.cidr_blocks : {
+      from_port   = rule.from_port
+      to_port     = rule.to_port
+      protocol    = rule.protocol
+      description = "Managed by Terraform"
+      cidr_blocks = cidr
+    }
+  ]
+])
+
   tags = merge(var.tags, {
     Name = each.value.name
   })
-}
-
-# Create Ingress Rules
-resource "aws_security_group_rule" "dynamic_ingress" {
-  for_each = {
-    for pair in flatten([
-      for sg in var.security_groups : [
-        for i, rule in sg.ingress : {
-          key   = "${sg.name}-ingress-${i}"
-          value = {
-            security_group_id = aws_security_group.dynamic_sg[sg.name].id
-            from_port         = rule.from_port
-            to_port           = rule.to_port
-            protocol          = rule.protocol
-            cidr_blocks       = rule.cidr_blocks
-          }
-        }
-      ]
-    ]) : pair.key => pair.value
-  }
-
-  type              = "ingress"
-  security_group_id = each.value.security_group_id
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
-}
-
-# Create Egress Rules
-resource "aws_security_group_rule" "dynamic_egress" {
-  for_each = {
-    for pair in flatten([
-      for sg in var.security_groups : [
-        for i, rule in sg.egress : {
-          key   = "${sg.name}-egress-${i}"
-          value = {
-            security_group_id = aws_security_group.dynamic_sg[sg.name].id
-            from_port         = rule.from_port
-            to_port           = rule.to_port
-            protocol          = rule.protocol
-            cidr_blocks       = rule.cidr_blocks
-          }
-        }
-      ]
-    ]) : pair.key => pair.value
-  }
-
-  type              = "egress"
-  security_group_id = each.value.security_group_id
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
 }

@@ -33,15 +33,15 @@ tags = {
 
 security_groups = [
   {
-    name        = "serverless-dev"
-    description = "Security group for serverless dev"
+    name        = "MWT-RDP"
+    description = "RDP to MWT IPs"
 
     ingress = [
       {
-        from_port   = 443
-        to_port     = 443
+        from_port   = 3389
+        to_port     = 3389
         protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["24.52.124.0/24"]
       }
     ]
 
@@ -56,15 +56,74 @@ security_groups = [
   },
 
   {
-    name        = "serverless-prod"
-    description = "Security group for serverless prod"
+    name        = "default"
+    description = "default VPC security group"
 
     ingress = [
       {
-        from_port   = 80
-        to_port     = 80
+        from_port   = 22
+        to_port     = 22
         protocol    = "tcp"
+        cidr_blocks = ["10.223.0.0/16"]
+      },
+      {
+        from_port   = -1
+        to_port     = -1
+        protocol    = "icmp"
+        cidr_blocks = ["10.223.0.0/16"]
+      },
+      {
+        from_port   = -1
+        to_port     = -1
+        protocol    = "icmp"
+        cidr_blocks = ["10.224.0.0/16"]
+      },
+      {
+        from_port   = 3389
+        to_port     = 3389
+        protocol    = "tcp"
+        cidr_blocks = ["10.224.0.0/16"]
+      },
+      {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["10.224.0.0/16"]
+      },
+      {
+        from_port   = 3389
+        to_port     = 3389
+        protocol    = "tcp"
+        cidr_blocks = ["10.223.0.0/16"]
+      }
+    ]
+
+    egress = [
+      {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
         cidr_blocks = ["0.0.0.0/0"]
+      }
+    ]
+  },
+
+  {
+    name        = "mwt-datacenter"
+    description = "allow all traffic to the mwt datacenter subnet"
+
+    ingress = [
+      {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["10.223.0.0/16"]
+      },
+      {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["10.224.0.0/16"]
       }
     ]
 
