@@ -6,6 +6,8 @@ module "vpc" {
   cidr = var.vpc_cidr_block
 
   azs             = var.azs
+  public_subnet_names  = var.public_subnet_names
+  private_subnet_names = var.private_subnet_names
   private_subnets = var.private_subnets
   public_subnets  = var.public_subnets
 

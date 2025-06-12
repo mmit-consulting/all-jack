@@ -13,6 +13,16 @@ variable "azs" {
   type        = list(string)
 }
 
+variable "public_subnet_names" {
+  description = "Names of public subnets"
+  type        = list(string)
+}
+
+variable "private_subnet_names" {
+  description = "Names of private subnets"
+  type        = list(string)
+}
+
 variable "public_subnets" {
   description = "List of public subnet CIDRs"
   type        = list(string)

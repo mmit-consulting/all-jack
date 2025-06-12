@@ -7,6 +7,18 @@ azs = [
   "us-east-1b"
 ]
 
+public_subnet_names = [
+  "serverless-dev-public-us-east-1a",
+  "serverless-prod-public-us-east-1a",
+  "serverless-prod-public-us-east-1b"
+]
+
+private_subnet_names = [
+  "serverless-dev-private-us-east-1a",
+  "serverless-prod-private-us-east-1a",
+  "serverless-prod-private-us-east-1b"
+]
+
 public_subnets = [
   "10.103.101.0/24", # serverless dev public 1a
   "10.103.102.0/24", # serverless prod public 1a
