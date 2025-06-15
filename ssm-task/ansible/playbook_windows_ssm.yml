@@ -1,0 +1,6 @@
+---
+- name: Ensure SSM agent is installed and running on Windows
+  hosts: windows
+  gather_facts: no
+  roles:
+    - windows_ssm_agent
