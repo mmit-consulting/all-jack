@@ -1,24 +1,29 @@
-- name: Check if SSM Agent is installed
+- name: Check if Amazon SSM Agent is installed
   win_shell: |
-    Get-Service -Name AmazonSSMAgent -ErrorAction SilentlyContinue
-  register: ssm_service_check
+    Get-Service -Name "AmazonSSMAgent"
+  register: ssm_check
   ignore_errors: true
 
-- name: Download Amazon SSM Agent installer (.exe)
+# - name: Show result of SSM Agent check
+#   debug:
+#     var: ssm_check
+
+- name: Download Amazon SSM Agent installer
   win_get_url:
     url: "https://amazon-ssm-us-east-1.s3.us-east-1.amazonaws.com/latest/windows_amd64/AmazonSSMAgentSetup.exe"
-    dest: "C:\\Windows\\Temp\\AmazonSSMAgentSetup.exe"
-  when: ssm_service_check.failed
+    dest: C:\Windows\Temp\AmazonSSMAgentSetup.exe
+  when: ssm_check.failed
 
-- name: Run SSM Agent installer
-  win_shell: "C:\\Windows\\Temp\\AmazonSSMAgentSetup.exe /quiet"
-  args:
-    executable: cmd
-  when: ssm_service_check.failed
+- name: Install Amazon SSM Agent silently
+  win_package:
+    path: C:\Windows\Temp\AmazonSSMAgentSetup.exe
+    arguments: /S
+    product_id: AmazonSSMAgent
+  when: ssm_check.failed
 
 - name: Restart SSM Agent if already installed
   win_service:
     name: AmazonSSMAgent
     start_mode: auto
     state: restarted
-  when: not ssm_service_check.failed
+  when: not ssm_check.failed
