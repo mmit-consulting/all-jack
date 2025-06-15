@@ -2,13 +2,12 @@
 
 To run the windows playbook:
 
-ansible-playbook -i inventory.ini playbook_windows_ssm.yml -e "ansible_password='Test1'"
+ansible-playbook -i inventory.ini playbook_windows_ssm.yml
+ansible-playbook -i inventory.ini playbook_windows_ssm.yml --ask-pass
 
 
 winrm quickconfig
-winrm enumerate winrm/config/listener
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+winrm set winrm/config/service/auth '@{Basic="true"}'
 
-Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP" -Profile Any
-Get-NetFirewallRule -Name "WINRM-HTTP-In-TCP" | Format-List Name, Enabled, Profile
-
-to chagne the passwordnet user Administrator Test1
+to chagne the password net user Administrator Test1234
