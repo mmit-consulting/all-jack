@@ -1,0 +1,28 @@
+#### ECR Repository ####
+ecr_name                = "qa/mobile/testing"
+image_scanning          = false
+tag_immutability        = "MUTABLE"
+lifecycle_expire_days   = 90
+#### ECS IAM Role ####
+ecs_role_name                 = "qa.mobile.testing"
+ecs_custom_policy_name        = "ECS.Full"
+ecs_custom_policy_description = "Full access placeholder for ECS (to be updated)"
+ecs_custom_policy_statements = [
+  {
+    Effect   = "Allow",
+    Action   = ["ecs:ListClusters"],
+    Resource = "*"
+  }
+]
+#### ECS Task Definition ####
+ecs_cluster_name                = "qa-mobile-testing-cluster"
+ecs_service_name               = "qa-mobile-testing-service"
+ecs_task_cpu                   = 2048
+ecs_task_memory                = 5120
+ecs_container_memory_reservation = 4096
+ecs_container_name             = "qa-mobile-testing"
+ecs_container_image            = "123456789012.dkr.ecr.eu-west-3.amazonaws.com/qa/mobile/testing:latest"
+ecs_log_group                  = "/ecs/qa-mobile-testing"
+ecs_operating_system_family    = "LINUX"
+ecs_cpu_architecture           = "X86_64"
+subnet_ids                     = ["subnet-abcde012", "subnet-bcde012a"]
