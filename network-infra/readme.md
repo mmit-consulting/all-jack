@@ -39,8 +39,6 @@ This project defines the **network infrastructure** for the environment, using t
 
 ```
 ├── main.tf # VPC core configuration
-├── vpc_endpoints.tf # S3 Gateway endpoint configuration
-├── security_groups.tf # Dynamic Security Groups
 ├── variables.tf # Input variables
 ├── outputs.tf # Useful outputs
 ├── terraform.tfvars # Environment-specific values (CIDRs, tags, SGs, etc.)

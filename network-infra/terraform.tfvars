@@ -39,7 +39,43 @@ tags = {
   department   = "infrastructure"
   businessunit = "midwesttape"
 }
+#### Route tables ####
+route_tables = {
+  serverless-public = {
+    name         = "rt-serverless-public"
+    type         = "public"
+    environment  = "shared"
+    subnet_names = [
+      "serverless-dev-public-us-east-1a",
+      "serverless-prod-public-us-east-1a",
+      "serverless-prod-public-us-east-1b"
+    ]
+  }
 
+  serverless-private-dev-1a = {
+    name              = "rt-serverless-private-dev-1a"
+    type              = "private"
+    environment       = "dev"
+    subnet_names      = ["serverless-dev-private-us-east-1a"]
+    nat_gateway_index = 0
+  }
+
+  serverless-private-prod-1a = {
+    name              = "rt-serverless-private-prod-1a"
+    type              = "private"
+    environment       = "prod"
+    subnet_names      = ["serverless-prod-private-us-east-1a"]
+    nat_gateway_index = 0
+  }
+
+  serverless-private-prod-1b = {
+    name              = "rt-serverless-private-prod-1b"
+    type              = "private"
+    environment       = "prod"
+    subnet_names      = ["serverless-prod-private-us-east-1b"]
+    nat_gateway_index = 1
+  }
+}
 
 #### Security Group ####
 

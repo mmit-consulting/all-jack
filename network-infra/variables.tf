@@ -37,6 +37,17 @@ variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
 }
+#### Route tables ####
+variable "route_tables" {
+  description = "Route table definitions"
+  type = map(object({
+    name         = string
+    type         = string  # "public" or "private"
+    environment  = string  # "dev" or "prod"
+    subnet_names = list(string)
+    nat_gateway_index = optional(number)
+  }))
+}
 #### Security Group ####
 
 variable "security_groups" {
@@ -58,3 +69,4 @@ variable "security_groups" {
     }))
   }))
 }
+
