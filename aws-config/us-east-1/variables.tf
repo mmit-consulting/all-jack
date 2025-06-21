@@ -10,3 +10,7 @@ variable "excluded_accounts" {
   type    = list(string)
   default = []
 }
+
+variable "organization_id" {
+  type = string
+}

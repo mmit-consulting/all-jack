@@ -173,3 +173,17 @@ resource "aws_sns_topic_policy" "allow_eventbridge_publish" {
     }]
   })
 }
+
+# allows any account in your organization to send events to your root account’s default EventBridge event bus
+resource "aws_cloudwatch_event_permission" "allow_subaccounts" {
+  statement_id   = "AllowOrgAccountsPutEvents"
+  principal      = "*"
+  action         = "events:PutEvents"
+  event_bus_name = "default"
+
+  condition {
+    type  = "StringEquals"
+    key   = "aws:PrincipalOrgID"
+    value = var.organization_id
+  }
+}
