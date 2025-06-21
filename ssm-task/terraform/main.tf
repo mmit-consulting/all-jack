@@ -1,8 +1,8 @@
 module "ssm" {
   source     = "./modules/session-manager"
-  vpc_id     = var.vpc_id
-  subnet_ids = var.subnet_ids
-  region     = var.region
-  ec2_cidr   = var.ec2_cidr
+  vpc_id     = var.ssm.vpc_id
+  subnet_ids = var.ssm.subnet_ids
+  region     = var.ssm.region
+  ec2_cidr   = var.ssm.ec2_cidr
 }
 

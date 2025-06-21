@@ -1,0 +1,25 @@
+{
+  "source": [
+    "aws.config"
+  ],
+  "detail-type": [
+    "Config Rules Compliance Change"
+  ],
+  "detail": {
+    "messageType": [
+      "ComplianceChangeNotification"
+    ],
+    "resourceType": [
+      "AWS::S3::Bucket"
+    ],
+    "configRuleName": [
+      "ec2-security-group-attached-to-eni",
+      "ec2-security-group-attached-to-eni2"
+    ],
+    "newEvaluationResult": {
+      "complianceType": [
+        "NON_COMPLIANT"
+      ]
+    }
+  }
+}
