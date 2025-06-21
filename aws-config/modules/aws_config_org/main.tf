@@ -134,16 +134,21 @@ resource "aws_cloudwatch_event_rule" "config_compliance_change" {
   description = "Trigger when AWS Config rule compliance state changes for specific S3 rules"
 
   event_pattern = jsonencode({
-    source = ["aws.config"],
-    "detail-type" : ["Config Rules Compliance Change"],
+    source      = ["aws.config"]
+    detail-type = ["Config Rules Compliance Change"]
     detail = {
-      complianceType = ["NON_COMPLIANT"],
+      messageType  = ["ComplianceChangeNotification"]
+      resourceType = ["AWS::S3::Bucket"]
       configRuleName = [
-        "org-s3-block-public-read-prohibited",
-        "org-s3-acl-prohibited"
+        "ec2-security-group-attached-to-eni",
+        "ec2-security-group-attached-to-eni2"
       ]
+      newEvaluationResult = {
+        complianceType = ["NON_COMPLIANT"]
+      }
     }
   })
+
 }
 
 resource "aws_cloudwatch_event_target" "sns_target" {
