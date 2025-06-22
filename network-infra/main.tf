@@ -187,3 +187,25 @@ module "security_group" {
     Name = each.value.name
   })
 }
+#### VPC Transit Gateway attachment ####
+resource "aws_ec2_transit_gateway_vpc_attachment" "this" {
+  transit_gateway_id = var.transit_gateway_id
+  vpc_id             = aws_vpc.main.id
+  subnet_ids         = [
+    aws_subnet.private["serverless-dev-private-us-east-1a"].id,
+    aws_subnet.private["serverless-prod-private-us-east-1b"].id
+  ]
+
+  tags = merge(var.tags, {
+    Name = "tgw-attachment-${var.tags["name"]}"
+  })
+}
+
+# resource "aws_route" "custom_all_routes" {
+#   for_each = aws_route_table.custom
+
+#   route_table_id         = each.value.id
+#   destination_cidr_block = "10.0.0.0/8"
+#   transit_gateway_id     = var.transit_gateway_id
+
+# }
