@@ -74,7 +74,7 @@ resource "aws_cloudwatch_log_group" "ecs_log_group" {
 
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
-  version = "~> 5.0"
+  version = "5.12.1"
 
   cluster_name = var.ecs_cluster_name
 
@@ -113,7 +113,7 @@ module "ecs" {
             logDriver = "awslogs"
             options = {
               awslogs-group         = var.ecs_log_group
-              awslogs-region        = "eu-west-3"
+              awslogs-region        = var.region
               awslogs-stream-prefix = var.ecs_container_name
             }
           }
@@ -141,3 +141,54 @@ module "ecs" {
     }
   }
 }
+
+#### GHActions Role ####
+resource "aws_iam_role" "gha_ecr_role" {
+  name = var.gha_role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement: [
+      {
+        Effect: "Allow",
+        Principal: {
+          Federated: var.github_oidc_provider_arn
+        },
+        Action: "sts:AssumeRoleWithWebIdentity",
+        Condition: {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          },
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = var.github_oidc_sub
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "passrole" {
+  for_each    = var.passrole_policies
+  name        = each.key
+  description = "Allow passing role ${each.key}"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid     = "IAMPassRole",
+        Effect  = "Allow",
+        Action  = "iam:PassRole",
+        Resource = each.value
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "passrole_attach" {
+  for_each   = aws_iam_policy.passrole
+  role       = aws_iam_role.gha_ecr_role.name
+  policy_arn = each.value.arn
+}
+
+#### API Gateway ####

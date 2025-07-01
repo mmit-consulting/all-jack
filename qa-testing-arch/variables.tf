@@ -1,3 +1,9 @@
+#### Global ####
+variable "region" {
+  description = "AWS Region"
+  type = string
+  default = "eu-west-3"
+}
 #### ECR Repository ####
 variable "ecr_name" {
   description = "Name of the ECR repository (can include slashes)"
@@ -101,3 +107,25 @@ variable "subnet_ids" {
   description = "Subnets for the ECS service"
   type        = list(string)
 }
+
+#### GHActions Role ####
+variable "gha_role_name" {
+  description = "Name of the GitHub Actions role"
+  type        = string
+}
+
+variable "github_oidc_provider_arn" {
+  description = "OIDC provider ARN for GitHub"
+  type        = string
+}
+
+variable "github_oidc_sub" {
+  description = "GitHub OIDC sub value (e.g., repo:org/repo:* )"
+  type        = string
+}
+variable "passrole_policies" {
+  description = "Map of policy name => role ARN for PassRole policies"
+  type = map(string)
+}
+
+#### API Gateway ####
